@@ -28,3 +28,6 @@ type OperatingSystemConfiguration struct {
 	// LinuxSecurityModule allows to configure default Linux Security Module for Garden Linux. If not present, it will default to `AppArmor`.
 	LinuxSecurityModule *string
 }
+
+// OSTypeGardenLinux is a constant for the Garden Linux extension OS type.
+const OSTypeGardenLinux = "gardenlinux"
