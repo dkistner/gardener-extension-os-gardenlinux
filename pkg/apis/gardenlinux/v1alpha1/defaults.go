@@ -21,3 +21,18 @@ import (
 func addDefaultingFuncs(scheme *runtime.Scheme) error {
 	return RegisterDefaults(scheme)
 }
+
+// SetDefaults_OperatingSystemConfiguration sets the defaults for the Garden Linux operating system configuration
+func SetDefaults_OperatingSystemConfiguration(obj *OperatingSystemConfiguration) {
+	if len(obj.LinuxSecurityModule) == 0 {
+		obj.LinuxSecurityModule = LsmAppArmor
+	}
+
+	if len(obj.NetFilterFrontend) == 0 {
+		obj.NetFilterFrontend = NetFilterNfTables
+	}
+
+	if len(obj.CgroupVersion) == 0 {
+		obj.CgroupVersion = CgroupVersionV1
+	}
+}

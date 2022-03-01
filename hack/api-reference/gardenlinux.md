@@ -46,7 +46,9 @@ string
 <td>
 <code>linuxSecurityModule</code></br>
 <em>
-string
+<a href="#gardenlinux.os.extensions.gardener.cloud/v1alpha1.LinuxSecurityModule">
+LinuxSecurityModule
+</a>
 </em>
 </td>
 <td>
@@ -54,8 +56,63 @@ string
 <p>LinuxSecurityModule allows to configure default Linux Security Module for Garden Linux. If not present, it will default to <code>AppArmor</code>.</p>
 </td>
 </tr>
+<tr>
+<td>
+<code>netfilterFrontend</code></br>
+<em>
+<a href="#gardenlinux.os.extensions.gardener.cloud/v1alpha1.NetFilterFrontend">
+NetFilterFrontend
+</a>
+</em>
+</td>
+<td>
+<em>(Optional)</em>
+<p>NetFilterFrontend allows to configure the netfilter frontend to be used on Garden Linux</p>
+</td>
+</tr>
+<tr>
+<td>
+<code>cGroupVersion</code></br>
+<em>
+<a href="#gardenlinux.os.extensions.gardener.cloud/v1alpha1.CgroupVersion">
+CgroupVersion
+</a>
+</em>
+</td>
+<td>
+<em>(Optional)</em>
+<p>CgroupVersion allows to configure which cgroup version will be used on Garden Linux</p>
+</td>
+</tr>
 </tbody>
 </table>
+<h3 id="gardenlinux.os.extensions.gardener.cloud/v1alpha1.CgroupVersion">CgroupVersion
+(<code>string</code> alias)</p></h3>
+<p>
+(<em>Appears on:</em>
+<a href="#gardenlinux.os.extensions.gardener.cloud/v1alpha1.OperatingSystemConfiguration">OperatingSystemConfiguration</a>)
+</p>
+<p>
+<p>CgroupVersion defines the cgroup version (v1 or v2) to be configured on Garden Linux</p>
+</p>
+<h3 id="gardenlinux.os.extensions.gardener.cloud/v1alpha1.LinuxSecurityModule">LinuxSecurityModule
+(<code>string</code> alias)</p></h3>
+<p>
+(<em>Appears on:</em>
+<a href="#gardenlinux.os.extensions.gardener.cloud/v1alpha1.OperatingSystemConfiguration">OperatingSystemConfiguration</a>)
+</p>
+<p>
+<p>LinuxSecurityModule defines the Linux Security Module (LSM) for Garden Linux</p>
+</p>
+<h3 id="gardenlinux.os.extensions.gardener.cloud/v1alpha1.NetFilterFrontend">NetFilterFrontend
+(<code>string</code> alias)</p></h3>
+<p>
+(<em>Appears on:</em>
+<a href="#gardenlinux.os.extensions.gardener.cloud/v1alpha1.OperatingSystemConfiguration">OperatingSystemConfiguration</a>)
+</p>
+<p>
+<p>NetFilterFrontend defines the netfilter frontend for Garden Linux</p>
+</p>
 <hr/>
 <p><em>
 Generated with <a href="https://github.com/ahmetb/gen-crd-api-reference-docs">gen-crd-api-reference-docs</a>

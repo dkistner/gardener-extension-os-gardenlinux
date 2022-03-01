@@ -27,5 +27,43 @@ type OperatingSystemConfiguration struct {
 
 	// LinuxSecurityModule allows to configure default Linux Security Module for Garden Linux. If not present, it will default to `AppArmor`.
 	// +optional
-	LinuxSecurityModule *string `json:"linuxSecurityModule,omitempty"`
+	LinuxSecurityModule LinuxSecurityModule `json:"linuxSecurityModule,omitempty"`
+
+	// NetFilterFrontend allows to configure the netfilter frontend to be used on Garden Linux
+	// +optional
+	NetFilterFrontend NetFilterFrontend `json:"netfilterFrontend,omitempty"`
+
+	// CgroupVersion allows to configure which cgroup version will be used on Garden Linux
+	// +optional
+	CgroupVersion CgroupVersion `json:"cGroupVersion,omitempty"`
 }
+
+// LinuxSecurityModule defines the Linux Security Module (LSM) for Garden Linux
+type LinuxSecurityModule string
+
+const (
+	// LsmAppArmor is the identifier for AppArmor as LSM
+	LsmAppArmor LinuxSecurityModule = "AppArmor"
+	// LsmSeLinux is the identifier for SELinux as LSM
+	LsmSeLinux LinuxSecurityModule = "SELinux"
+)
+
+// NetFilterFrontend defines the netfilter frontend for Garden Linux
+type NetFilterFrontend string
+
+const (
+	// NetFilterNfTables is the identifier for nftables as netfilter frontend
+	NetFilterNfTables NetFilterFrontend = "nftables"
+	// NetFilterIpTables is the identifier for nftables as netfilter frontend
+	NetFilterIpTables NetFilterFrontend = "iptables"
+)
+
+// CgroupVersion defines the cgroup version (v1 or v2) to be configured on Garden Linux
+type CgroupVersion string
+
+const (
+	// CgroupVersionV1 sets the cgroup version to (legacy) v1
+	CgroupVersionV1 CgroupVersion = "v1"
+	// CgroupVersionV2 sets the cgroup version to v2
+	CgroupVersionV2 CgroupVersion = "v2"
+)

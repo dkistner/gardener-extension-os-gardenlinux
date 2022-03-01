@@ -21,6 +21,7 @@ import (
 
 	"github.com/gardener/gardener-extension-os-gardenlinux/pkg/apis/gardenlinux"
 	gardenlinuxinstall "github.com/gardener/gardener-extension-os-gardenlinux/pkg/apis/gardenlinux/install"
+	"github.com/gardener/gardener-extension-os-gardenlinux/pkg/apis/gardenlinux/v1alpha1"
 
 	controllercmd "github.com/gardener/gardener/extensions/pkg/controller/cmd"
 	ostemplate "github.com/gardener/gardener/extensions/pkg/controller/operatingsystemconfig/oscommon/template"
@@ -57,21 +58,17 @@ func init() {
 			return nil, nil
 		}
 
+		obj := &v1alpha1.OperatingSystemConfiguration{}
+		if osc.Spec.ProviderConfig != nil {
+			if _, _, err := decoder.Decode(osc.Spec.ProviderConfig.Raw, nil, obj); err != nil {
+				return nil, fmt.Errorf("failed to decode provider config: %+v", err)
+			}
+		}
+
 		values := map[string]interface{}{
-			"LinuxSecurityModule": "AppArmor",
-		}
-
-		if osc.Spec.ProviderConfig == nil {
-			return values, nil
-		}
-
-		obj := &gardenlinux.OperatingSystemConfiguration{}
-		if _, _, err := decoder.Decode(osc.Spec.ProviderConfig.Raw, nil, obj); err != nil {
-			return nil, fmt.Errorf("failed to decode provider config: %+v", err)
-		}
-
-		if obj.LinuxSecurityModule != nil {
-			values["LinuxSecurityModule"] = *obj.LinuxSecurityModule
+			"LinuxSecurityModule": obj.LinuxSecurityModule,
+			"NetFilterFrontend":   obj.NetFilterFrontend,
+			"cGroupVersion":       obj.CgroupVersion,
 		}
 
 		return values, nil
