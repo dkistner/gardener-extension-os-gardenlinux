@@ -40,8 +40,8 @@ var (
 
 // NewControllerCommand returns a new Command with a new Generator
 func NewControllerCommand(ctx context.Context) *cobra.Command {
-	generator := generator.CloudInitGenerator()
-	if generator == nil {
+	gardenLinuxGenerator := generator.CloudInitGenerator(ctx)
+	if gardenLinuxGenerator == nil {
 		controllercmd.LogErrAndExit(nil, "Could not create Generator")
 	}
 
@@ -60,7 +60,7 @@ func NewControllerCommand(ctx context.Context) *cobra.Command {
 
 		reconcileOpts = &controllercmd.ReconcilerOptions{}
 
-		controllerSwitches = oscommoncmd.SwitchOptions(ctrlName, osTypes, generator)
+		controllerSwitches = oscommoncmd.SwitchOptions(ctrlName, osTypes, gardenLinuxGenerator)
 
 		aggOption = controllercmd.NewOptionAggregator(
 			generalOpts,
@@ -103,6 +103,8 @@ func NewControllerCommand(ctx context.Context) *cobra.Command {
 			ctrlOpts.Completed().Apply(&oscommon.DefaultAddOptions.Controller)
 
 			reconcileOpts.Completed().Apply(&oscommon.DefaultAddOptions.IgnoreOperationAnnotation)
+
+			generator.InjectClient(mgr.GetClient())
 
 			if err := controllerSwitches.Completed().AddToManager(mgr); err != nil {
 				controllercmd.LogErrAndExit(err, "Could not add controller to manager")

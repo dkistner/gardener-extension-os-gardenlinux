@@ -15,6 +15,8 @@
 package generator_test
 
 import (
+	"context"
+
 	gardenlinux_generator "github.com/gardener/gardener-extension-os-gardenlinux/pkg/generator"
 	"github.com/gardener/gardener-extension-os-gardenlinux/pkg/generator/testfiles"
 
@@ -24,6 +26,8 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
+
+var ctx context.Context = context.Background()
 
 var (
 	permissions = int32(0644)
@@ -88,8 +92,8 @@ dataKey: token`)
 var _ = Describe("Garden Linux OS Generator Test", func() {
 
 	Describe("Conformance Tests", func() {
-		g := gardenlinux_generator.CloudInitGenerator()
-		test.DescribeTest(gardenlinux_generator.CloudInitGenerator(), testfiles.Files)()
+		g := gardenlinux_generator.CloudInitGenerator(ctx)
+		test.DescribeTest(gardenlinux_generator.CloudInitGenerator(ctx), testfiles.Files)()
 
 		It("[docker] [bootstrap] should render correctly ", func() {
 			expectedCloudInit, err := testfiles.Files.ReadFile("docker-bootstrap")
