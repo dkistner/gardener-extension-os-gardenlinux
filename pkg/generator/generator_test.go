@@ -16,26 +16,39 @@ package generator_test
 
 import (
 	"context"
+	"encoding/json"
 
 	gardenlinux_generator "github.com/gardener/gardener-extension-os-gardenlinux/pkg/generator"
 	"github.com/gardener/gardener-extension-os-gardenlinux/pkg/generator/testfiles"
 
 	commongen "github.com/gardener/gardener/extensions/pkg/controller/operatingsystemconfig/oscommon/generator"
 	"github.com/gardener/gardener/extensions/pkg/controller/operatingsystemconfig/oscommon/generator/test"
+	gardencorev1beta1 "github.com/gardener/gardener/pkg/apis/core/v1beta1"
 	"github.com/gardener/gardener/pkg/apis/extensions/v1alpha1"
+	extensionsv1alpha1 "github.com/gardener/gardener/pkg/apis/extensions/v1alpha1"
+	mockclient "github.com/gardener/gardener/pkg/mock/controller-runtime/client"
+	"github.com/golang/mock/gomock"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"k8s.io/apimachinery/pkg/runtime"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-var ctx context.Context = context.Background()
-
 var (
-	permissions = int32(0644)
-	unit1       = "unit1"
-	unit2       = "unit2"
-	ccdService  = "cloud-config-downloader.service"
-	dropin      = "dropin"
-	filePath    = "/var/lib/kubelet/ca.crt"
+	ctx         context.Context = context.Background()
+	permissions                 = int32(0644)
+	unit1                       = "unit1"
+	unit2                       = "unit2"
+	ccdService                  = "cloud-config-downloader.service"
+	dropin                      = "dropin"
+	filePath                    = "/var/lib/kubelet/ca.crt"
+
+	ctrl        *gomock.Controller
+	c           *mockclient.MockClient
+	clusterName string
+	clusterKey  client.ObjectKey
+	shoot       *gardencorev1beta1.Shoot
+	cluster     *extensionsv1alpha1.Cluster
 
 	unitContent = []byte(`[Unit]
 Description=test content
@@ -95,9 +108,40 @@ var _ = Describe("Garden Linux OS Generator Test", func() {
 		g := gardenlinux_generator.CloudInitGenerator(ctx)
 		test.DescribeTest(gardenlinux_generator.CloudInitGenerator(ctx), testfiles.Files)()
 
-		It("[docker] [bootstrap] should render correctly ", func() {
+		BeforeEach(func() {
+			ctrl = gomock.NewController(GinkgoT())
+			c = mockclient.NewMockClient(ctrl)
+			gardenlinux_generator.InjectClient(c)
+
+			clusterName = "test-cluster"
+			clusterKey = client.ObjectKey{Namespace: clusterName, Name: clusterName}
+
+			shoot = &gardencorev1beta1.Shoot{
+				Spec: gardencorev1beta1.ShootSpec{
+					Kubernetes: gardencorev1beta1.Kubernetes{
+						Version: "v1.19.0",
+					},
+				},
+			}
+
+			cluster = &extensionsv1alpha1.Cluster{
+				Spec: extensionsv1alpha1.ClusterSpec{
+					Shoot: runtime.RawExtension{
+						Raw: encode(shoot),
+					},
+				},
+			}
+		})
+
+		It("[docker] [bootstrap] should render correctly", func() {
 			expectedCloudInit, err := testfiles.Files.ReadFile("docker-bootstrap")
 			Expect(err).NotTo(HaveOccurred())
+
+			c.EXPECT().Get(ctx, clusterKey, gomock.AssignableToTypeOf(&extensionsv1alpha1.Cluster{})).DoAndReturn(
+				func(_ context.Context, _ client.ObjectKey, obj *extensionsv1alpha1.Cluster) error {
+					*obj = *cluster
+					return nil
+				})
 
 			osc.Bootstrap = true
 			osc.Object.Spec.Purpose = v1alpha1.OperatingSystemConfigPurposeProvision
@@ -148,3 +192,8 @@ var _ = Describe("Garden Linux OS Generator Test", func() {
 		})
 	})
 })
+
+func encode(obj runtime.Object) []byte {
+	data, _ := json.Marshal(obj)
+	return data
+}
